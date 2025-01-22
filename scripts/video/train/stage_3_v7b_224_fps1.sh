@@ -1,0 +1,54 @@
+#!/bin/bash
+
+python scripts/merge_lora_weights.py --model-path ./work_dirs/slowfocus-vid-7b-lora-224-video-fps-1-grid-8-clip-x-nnode1-te-v1-grddt-1k-s2 \
+--model-base /cache/model_zoo/LLM/vicuna/vicuna-7b-v1.5 \
+--save-model-path ./work_dirs/slowfocus-vid-7b-merge-224-video-fps-1-grid-8-clip-x-nnode1-te-v1-grddt-1k-s2
+
+deepspeed llamavid/train/train.py \
+    --deepspeed ./scripts/zero2_offload.json \
+    --lora_enable True \
+    --model_name_or_path ./work_dirs/slowfocus-vid-7b-merge-224-video-fps-1-grid-8-clip-x-nnode1-te-v1-grddt-1k-s2 \
+    --version imgsp_v1 \
+    --temporal_embedding v1 \
+    --grd_discretization 1000 \
+    --search v0 \
+    --search_sampling 20 \
+    --data_path /cache/Finetune/fineaction_train.json \
+    --image_folder /cache/Finetune \
+    --video_folder /cache/Finetune \
+    --vision_tower /cache/model_zoo/openai/clip-patch14-224 \
+    --image_processor ./slowfocus/processor/clip-patch14-224 \
+    --mm_projector_type mlp2x_gelu \
+    --mm_vision_select_layer -2 \
+    --mm_use_im_start_end False \
+    --mm_use_im_patch_token False \
+    --image_aspect_ratio pad \
+    --group_by_modality_length True \
+    --video_fps 1 \
+    --max_frame_num 100 \
+    --bert_type "qformer_pretrain_freeze_all" \
+    --num_query 32 \
+    --compress_type "grid:8" \
+    --bf16 False \
+    --fp16 True \
+    --output_dir ./work_dirs/slowfocus-vid-7b-lora-224-video-fps-1-grid-8-clip-x-nnode1-te-v1-grddt-1k-s2-s3 \
+    --num_train_epochs 1 \
+    --per_device_train_batch_size 1 \
+    --per_device_eval_batch_size 4 \
+    --gradient_accumulation_steps 16 \
+    --evaluation_strategy "no" \
+    --save_strategy "steps" \
+    --save_steps 1000 \
+    --save_total_limit 1 \
+    --mm_projector_lr 2e-5 \
+    --learning_rate 2e-4 \
+    --weight_decay 0. \
+    --warmup_ratio 0.03 \
+    --lr_scheduler_type "cosine" \
+    --logging_steps 1 \
+    --tf32 False \
+    --model_max_length 2048 \
+    --gradient_checkpointing True \
+    --dataloader_num_workers 4 \
+    --lazy_preprocess True \
+    --report_to tensorboard
