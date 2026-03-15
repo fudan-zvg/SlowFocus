@@ -9,3 +9,7 @@
 
 
 ## Introduction
+
+## Preparation
+### Data
+For video-based dataset, please download ActivityNet dataset from here(http://activity-net.org/download.html). If you want to perform evaluation, please also download corresponding files from here(https://github.com/mbzuai-oryx/Video-ChatGPT/blob/main/quantitative_evaluation/README.md). You can download MSVD-QA from here(https://huggingface.co/datasets/morpheushoc/msvd-qa) and MSRVTT-QA from here(https://huggingface.co/microsoft/git-large-msrvtt-qa/tree/main).
